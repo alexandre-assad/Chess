@@ -1,7 +1,8 @@
+import math
 import pygame
 from dataclasses import *
 import time
-from ia import *
+
 @dataclass
 class Grille:
     pos:list[int] = field(default_factory=list)
@@ -60,6 +61,36 @@ class Grille:
                     self.pos[colonne][ligne+1] = 0
                     return True
 
+def position_dans_grille(colonne,ligne):
+    ycor = 0
+    xcor = 0
+    if colonne == 0:
+        ycor = 5
+    elif colonne == 1:
+        ycor = 40
+    elif colonne == 2:
+        ycor = 75
+    elif colonne == 3:
+        ycor = 110
+    elif colonne == 4:
+        ycor = 143
+    elif colonne == 5:
+        ycor = 178
+    elif colonne == 6:
+        ycor = 213
+    if ligne == 0:
+        xcor = 5
+    elif ligne == 1:
+        xcor = 40
+    elif ligne == 2:
+        xcor = 75
+    elif ligne == 3:
+        xcor = 110
+    elif ligne == 4:
+        xcor = 143
+    elif ligne == 5:
+        xcor = 178
+    return (ycor,xcor)
 def verif_win(grille,z):
     for y in range(6):
         for i in range(4):
@@ -123,109 +154,79 @@ def verif_win(grille,z):
         return True
     elif grille.pos[6][2] == z and grille.pos[5][3] == z and grille.pos[4][4] == z and grille.pos[3][5] == z:
         return True
-def position_dans_grille(colonne,ligne):
-    ycor = 0
-    xcor = 0
-    if colonne == 0:
-        ycor = 5
-    elif colonne == 1:
-        ycor = 40
-    elif colonne == 2:
-        ycor = 75
-    elif colonne == 3:
-        ycor = 110
-    elif colonne == 4:
-        ycor = 143
-    elif colonne == 5:
-        ycor = 178
-    elif colonne == 6:
-        ycor = 213
-    if ligne == 0:
-        xcor = 5
-    elif ligne == 1:
-        xcor = 40
-    elif ligne == 2:
-        xcor = 75
-    elif ligne == 3:
-        xcor = 110
-    elif ligne == 4:
-        xcor = 143
-    elif ligne == 5:
-        xcor = 178
-    return (ycor,xcor)
-pygame.init()
 
-screen = pygame.display.set_mode((243,208))
-background = pygame.image.load('board_p4.jpg')
-pygame.display.set_caption("Puissance 4")
-font = pygame.font.Font('freesansbold.ttf',15)
-red_Img = pygame.image.load("red_circle.png").convert_alpha()
-yel_Img = pygame.image.load("yellow_circle.png").convert_alpha()
-game_grille = Grille([[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]])
-game_grille.colision_grille()
-choix_menu = 2
-run = True
-while run:
-    if choix_menu == 1:
-        if verif_win(game_grille,1):
+def minimax(grille,profondeur,joueur):
+    if verif_win(grille,1) == True:
+        return 1
+    elif verif_win(grille,2) == True:
+        return -1
+    elif profondeur == 0:
+        return 0
+    # elif profondeur == 0:
+    #     return 0
+    compteur = 0
+    #Minimax(grille,profondeur+1,joueuropposé)
+    if joueur == "ia":
+        score:int
+        bestscore = -math.inf
+        for colonne in range(7):
             
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    run = False
-            screen.fill((255,255,255))
-            text = font.render('Le Rouge a gagné', True, (255, 0, 0))
-            screen.blit(text, (100, 100))
-        elif verif_win(game_grille,2):
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    run = False
-            screen.fill((255,255,255))
-            text = font.render('Le Jaune a gagné', True, (0,0,255))
-            screen.blit(text, (100, 100))
-        else:
-            screen.fill((35,35,35))
-            screen.blit(background, (0,0))
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    run = False                
-            game_grille.touch_case()
-            for colonne in range(len(game_grille.pos)):
-                for ligne in range(len(game_grille.pos[colonne])):
-                    if game_grille.pos[colonne][ligne] == 1:
-                        screen.blit(red_Img,position_dans_grille(colonne,ligne))
-                    elif game_grille.pos[colonne][ligne] == 2:
-                        screen.blit(yel_Img,position_dans_grille(colonne,ligne))
-    elif choix_menu == 2:
-        if verif_win(game_grille,1):
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    run = False
-            screen.fill((255,255,255))
-            text = font.render('Le Rouge a gagné', True, (255, 0, 0))
-            screen.blit(text, (100, 100))
-        elif verif_win(game_grille,2):
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    run = False
-            screen.fill((255,255,255))
-            text = font.render('Le Jaune a gagné', True, (0,0,255))
-            screen.blit(text, (100, 100))
-        else:
-            screen.fill((35,35,35))
-            screen.blit(background, (0,0))
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    run = False    
-            if game_grille.valeur == 1:
-                ia_hard(game_grille,1)
-                game_grille.valeur=2            
-            game_grille.touch_case()
-            for colonne in range(len(game_grille.pos)):
-                for ligne in range(len(game_grille.pos[colonne])):
-                    if game_grille.pos[colonne][ligne] == 1:
-                        screen.blit(red_Img,position_dans_grille(colonne,ligne))
-                    elif game_grille.pos[colonne][ligne] == 2:
-                        screen.blit(yel_Img,position_dans_grille(colonne,ligne))
-    pygame.display.update()
+            if grille.verif_colonne(colonne):
+                grille.ajout(colonne,1)
+                if grille.verif_colonne(colonne) == False:
+                    if verif_win(grille,1) == True:
+                        grille.remove(colonne)
+                        return 1
+                    elif verif_win(grille,2) == True:
+                        grille.remove(colonne)
+                        return -1
+                    else:
+                        
+                        score = minimax(grille,profondeur-1,"joueur")
+                        
+                score = minimax(grille,profondeur-1,"joueur")
+                grille.remove(colonne)
+                bestscore = max(score,bestscore)
+             
+        
+           
+    else:
+        score:int
+        bestscore = math.inf
+        for colonne in range(7):
+            if grille.verif_colonne(colonne):
+                grille.ajout(colonne,2)
+                if grille.verif_colonne(colonne) == False:
+                    if verif_win(grille,1) == True:
+                        grille.remove(colonne)
+                        return 1
+                    elif verif_win(grille,2) == True:
+                        grille.remove(colonne)
+                        return -1
+                    else:
+                        
+                        
+                        score = minimax(grille,profondeur-1,"ia")
+                score = minimax(grille,profondeur-1,"ia")
+                grille.remove(colonne)
+                bestscore = min(score,bestscore)
+            
+    return bestscore
     
-pygame.quit()
+    
+def ia_hard(grille,valeur):
+    score = -math.inf
+    meilleur_score = -math.inf
+    meilleur_coup:int
+    for colonne in range(7):
+        if grille.verif_colonne(colonne):
+            grille.ajout(colonne,valeur)
+            score = minimax(grille,5,"joueur")
+            grille.remove(colonne)
+            print(score)
+            if score > meilleur_score:
+                meilleur_score = score
+                meilleur_coup = colonne
+    
+    grille.ajout(meilleur_coup,valeur)
+    
